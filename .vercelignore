@@ -5,11 +5,11 @@
 __pycache__
 *.pyc
 
-experiments
-tools
-image
-compare
-static
+/experiments
+/tools
+/image
+/compare
+/static
 
 DATA_REFERENCE.md
 INTERFACES.md

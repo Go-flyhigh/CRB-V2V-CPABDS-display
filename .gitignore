@@ -5,11 +5,11 @@ __pycache__/
 *.py[cod]
 
 # Local experiment and development assets are not required by the hosted demo.
-experiments/
-tools/
-image/
-compare/
-static/
+/experiments/
+/tools/
+/image/
+/compare/
+/static/
 
 # The deployment uses public/static; keep editor/OS noise out of the repository.
 .DS_Store
