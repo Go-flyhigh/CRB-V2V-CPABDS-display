@@ -5,7 +5,7 @@
 ## 已部署实例
 
 - 正式访问地址：<https://crb-v2v-cpabds-display.vercel.app>
-- GitHub 仓库：<https://github.com/ERASSER316/CRB-V2V-CPABDS-display>
+- GitHub 仓库：<https://github.com/Go-flyhigh/CRB-V2V-CPABDS-display>
 - Vercel 项目：<https://vercel.com/go-flyhighs-projects/crb-v2v-cpabds-display>
 
 生产部署已经完成，并已验证首页、静态资源和五个场景的 API。当前部署由 Vercel
@@ -16,7 +16,7 @@ CLI 发布。为了让 `main` 分支的后续提交自动部署，还需要仓�
 
 1. 打开 [Vercel 项目 Git 设置](https://vercel.com/go-flyhighs-projects/crb-v2v-cpabds-display/settings/git)。
 2. 点击 **Connect Git Repository**，选择 GitHub。
-3. 如果仓库列表中没有 `ERASSER316/CRB-V2V-CPABDS-display`，点击
+3. 如果仓库列表中没有 `Go-flyhigh/CRB-V2V-CPABDS-display`，点击
    **Adjust GitHub App Permissions**。
 4. 在 GitHub 的 Vercel App 配置页选择 **Only select repositories**，勾选
    `CRB-V2V-CPABDS-display`，再点击 **Save**。
@@ -41,7 +41,7 @@ vercel.json         Flask 与 data 打包配置
 1. 登录 [Vercel Dashboard](https://vercel.com/new)。
 2. 选择 **Add New → Project**。
 3. 在 GitHub 列表中选择
-   `ERASSER316/CRB-V2V-CPABDS-display`。如果列表中没有该仓库，点击
+   `Go-flyhigh/CRB-V2V-CPABDS-display`。如果列表中没有该仓库，点击
    **Adjust GitHub App Permissions**，授权 Vercel 访问这个仓库。
 4. 保持以下设置：
    - Framework Preset：`Flask`（通常会自动识别）；
