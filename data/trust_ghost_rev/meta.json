@@ -1,0 +1,58 @@
+{
+  "episode_name": "trust_ghost_rev",
+  "map": "Town03",
+  "num_frames": 200,
+  "num_vehicles": 10,
+  "ego_cav_id": "146",
+  "adversary_cav_ids": [
+    "147"
+  ],
+  "cav_ids": [
+    "146",
+    "147",
+    "148",
+    "149",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+  ],
+  "attack_label": "ghost_vehicle_reverse_direction_pcd_only",
+  "attack_params": {
+    "strategy": "reverse_lane_trace_ghost_convoy_pcd_only_preserve_normal_points",
+    "source_episode": "/home/wcp/c4/Dataset/episode_0000",
+    "adversary_cav_id": 147,
+    "fake_ado_ids": [
+      -2001,
+      -2002,
+      -2003
+    ],
+    "ghost_count": 3,
+    "violation_mode": "reverse_direction",
+    "track_mode": "reverse_lane_trace",
+    "path_mode": "sampled_reference_lane_reverse",
+    "reference_cav_id": 146,
+    "reference_vehicle_id": 147,
+    "path_start_frame": 190,
+    "path_end_frame": 70,
+    "lateral_offset_m": 5.0,
+    "ghost_spacing_m": 12.0,
+    "reported_speed_mps": 2.78,
+    "reverse_reference": "reference_vehicle_lane_yaw",
+    "frame_interval_sec": 0.05,
+    "points_per_ghost": 5000,
+    "inject_pcd_mode": "dense_vehicle_surface_template",
+    "gt_injected": false,
+    "yaml_vehicles_injected": false,
+    "removed_fake_gt_frames": 0,
+    "pcd_injected_cav_ids": [
+      147
+    ],
+    "adversary_real_vehicle_points_pruned": false,
+    "adversary_normal_vehicle_points_preserved": true,
+    "notes": "The fake vehicles follow CAV 147's original lane trajectory in reverse order with a lateral offset and longitudinal spacing, so they remain on-road and visibly drive against traffic. They are present only in CAV 147 point clouds, not in vehicles GT; normal vehicle points are preserved."
+  },
+  "fixed_delta_seconds": 0.05
+}

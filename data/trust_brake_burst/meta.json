@@ -1,0 +1,55 @@
+{
+  "episode_name": "trust_brake_burst",
+  "map": "Town03",
+  "num_frames": 200,
+  "num_vehicles": 10,
+  "ego_cav_id": "146",
+  "adversary_cav_ids": [
+    "147"
+  ],
+  "cav_ids": [
+    "146",
+    "147",
+    "148",
+    "149",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+  ],
+  "attack_label": "brake_fraud",
+  "attack_params": {
+    "mode": "burst",
+    "strategy": "false_emergency_brake_with_stale_target_pcd_for_trust_visualization",
+    "source_dataset": "/home/wcp/c4/Dataset/trust_brake_burst",
+    "adversary_cav_id": 147,
+    "fake_target_actor_id": 149,
+    "burst_start": 50,
+    "burst_frames": 20,
+    "severity_mps2": 8.0,
+    "brake_threshold_mps2": 6.0,
+    "reported_stop_world_location": [
+      4.105739116668701,
+      -43.962684631347656,
+      -0.007619915064424276
+    ],
+    "reported_stop_offset_m": 6.0,
+    "pcd_modified_cav_ids": [
+      147
+    ],
+    "pcd_modified_frames": 20,
+    "yaml_vehicles_injected": false,
+    "new_vehicle_ids_injected": [],
+    "notes": "Emergency-brake fraud is shown by keeping the real target 149 on its actual trajectory while adding visualization-only 149-F at the reported stopped position during frames 50-69. CAV 147 is the reporting adversary; GT vehicles and normal CAV scores are preserved.",
+    "source_log_dir": "/home/wcp/c4/Results/trust_brake_burst/trust_logs",
+    "visualized_fake_brake_vehicle_id": "149-F",
+    "visualized_fake_brake_active_frames": [
+      50,
+      69
+    ],
+    "visualized_fake_brake_role": "fabricated_emergency_brake_report"
+  },
+  "fixed_delta_seconds": 0.05
+}

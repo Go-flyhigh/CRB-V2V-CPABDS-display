@@ -1,0 +1,100 @@
+{
+  "episode_name": "trust_ghost_imp",
+  "map": "Town03",
+  "num_frames": 200,
+  "num_vehicles": 10,
+  "ego_cav_id": "146",
+  "adversary_cav_ids": [
+    "147"
+  ],
+  "cav_ids": [
+    "146",
+    "147",
+    "148",
+    "149",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+  ],
+  "attack_label": "ghost_vehicle_impossible_speed_pcd_only",
+  "attack_params": {
+    "strategy": "single_impossible_speed_ghost_pcd_only_with_adversary_pruning",
+    "source_episode": "/home/wcp/c4/Dataset/episode_0001",
+    "adversary_cav_id": 147,
+    "fake_ado_ids": [
+      -2001
+    ],
+    "ghost_count": "1 per frame",
+    "violation_mode": "impossible_speed",
+    "track_mode": "visible_impossible_speed_loop",
+    "impossible_speed_step_m": "about 5m per frame inside ego BEV",
+    "reported_speed_mps": 0.0,
+    "frame_interval_sec": 0.05,
+    "heading_alignment": "yaw_follows_next_displacement",
+    "path_ego": [
+      [
+        42.0,
+        16.0,
+        -29.054601669311523
+      ],
+      [
+        46.5,
+        13.5,
+        -29.054601669311523
+      ],
+      [
+        51.0,
+        11.0,
+        -29.054601669311523
+      ],
+      [
+        55.5,
+        8.5,
+        -29.054601669311523
+      ],
+      [
+        60.0,
+        6.0,
+        -66.03750610351562
+      ],
+      [
+        62.0,
+        1.5,
+        150.94540405273438
+      ],
+      [
+        57.5,
+        4.0,
+        150.94540405273438
+      ],
+      [
+        53.0,
+        6.5,
+        150.94540405273438
+      ],
+      [
+        48.5,
+        9.0,
+        150.94540405273438
+      ],
+      [
+        44.0,
+        11.5,
+        113.96247863769531
+      ]
+    ],
+    "points_per_ghost": 3200,
+    "inject_pcd_mode": "dense_vehicle_surface_template",
+    "gt_injected": false,
+    "yaml_vehicles_injected": false,
+    "pcd_injected_cav_ids": [
+      147
+    ],
+    "adversary_real_vehicle_points_pruned": true,
+    "notes": "The fake vehicle reports speed=0 but moves about 5m per frame. It is present only in CAV 147 point clouds, not in vehicles GT."
+  },
+  "fixed_delta_seconds": 0.05
+}

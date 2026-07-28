@@ -1,0 +1,92 @@
+{
+  "episode_name": "trust_ghost_vehicl_teleport",
+  "map": "Town03",
+  "num_frames": 200,
+  "num_vehicles": 10,
+  "ego_cav_id": "146",
+  "adversary_cav_ids": [
+    "147"
+  ],
+  "cav_ids": [
+    "146",
+    "147",
+    "148",
+    "149",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+  ],
+  "attack_label": "ghost_vehicle_teleport_pcd_only",
+  "attack_params": {
+    "strategy": "three_local_teleport_ghosts_keep_normal_points",
+    "source_episode": "/home/wcp/c4/Dataset/ghost_teleport",
+    "adversary_cav_id": 147,
+    "fake_ado_ids": [
+      -2001,
+      -2002,
+      -2003
+    ],
+    "ghost_count": 3,
+    "violation_mode": "teleport",
+    "track_mode": "local_alternating_teleport_keep_normal_points",
+    "teleport_block_frames": 1,
+    "teleport_anchor_pairs_ego": [
+      [
+        [
+          56.0,
+          4.0,
+          -1.85,
+          0.0
+        ],
+        [
+          53.1,
+          5.7,
+          -1.85,
+          0.0
+        ]
+      ],
+      [
+        [
+          55.0,
+          -7.0,
+          -1.85,
+          0.0
+        ],
+        [
+          52.2,
+          -9.0,
+          -1.85,
+          0.0
+        ]
+      ],
+      [
+        [
+          46.0,
+          13.0,
+          -1.85,
+          0.0
+        ],
+        [
+          48.9,
+          11.2,
+          -1.85,
+          0.0
+        ]
+      ]
+    ],
+    "points_per_ghost": 3800,
+    "inject_pcd_mode": "dense_vehicle_surface_template",
+    "gt_injected": false,
+    "yaml_vehicles_injected": false,
+    "pcd_injected_cav_ids": [
+      147
+    ],
+    "fake_vehicle_points_pruned": true,
+    "adversary_real_vehicle_points_pruned": false,
+    "notes": "CAV 147 keeps normal real-vehicle points. Only the source fake -2001 residual is pruned; three point-only ghosts locally teleport every frame in CAV 147."
+  },
+  "fixed_delta_seconds": 0.05
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "trust_brake_burst",
+    "name": "紧急刹车欺诈 - Trust Logs - Town03",
+    "attack_label": "brake_fraud",
+    "map": "Town03",
+    "num_frames": 200,
+    "num_vehicles": 10,
+    "adversary_cav_ids": [
+      "147"
+    ]
+  },
+  {
+    "id": "trust_ghost_rev",
+    "name": "幽灵车逆行 - Trust Logs - Town03",
+    "attack_label": "ghost_vehicle_reverse_direction_pcd_only",
+    "map": "Town03",
+    "num_frames": 200,
+    "num_vehicles": 10,
+    "adversary_cav_ids": [
+      "147"
+    ]
+  },
+  {
+    "id": "trust_ghost_vehicl_teleport",
+    "name": "幽灵车瞬移 - Trust Logs - Town03",
+    "attack_label": "ghost_vehicle_teleport_pcd_only",
+    "map": "Town03",
+    "num_frames": 200,
+    "num_vehicles": 10,
+    "adversary_cav_ids": [
+      "147"
+    ]
+  },
+  {
+    "id": "trust_ghost_imp",
+    "name": "幽灵车超速 - Trust Logs - Town03",
+    "attack_label": "ghost_vehicle_impossible_speed_pcd_only",
+    "map": "Town03",
+    "num_frames": 200,
+    "num_vehicles": 10,
+    "adversary_cav_ids": [
+      "147"
+    ]
+  },
+  {
+    "id": "trust_obstacle",
+    "name": "障碍物伪造 - Trust Logs - Town03",
+    "attack_label": "obstacle_fabrication",
+    "map": "Town03",
+    "num_frames": 200,
+    "num_vehicles": 10,
+    "adversary_cav_ids": [
+      "147"
+    ]
+  }
+]

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRB-V2V-CPABDS 演示系统 V2</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- ECharts：本地 vendor 优先，加载失败回退 CDN -->
+    <script src="/static/vendor/echarts.min.js"
+            onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js';document.head.appendChild(s);"></script>
+</head>
+<body>
+    <div class="loading-mask" id="loadingMask">
+        <div class="loading-box">
+            <div class="loading-text" id="loadingText">正在初始化...</div>
+            <button class="btn" id="retryBtn" hidden>重试</button>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="brand">
+            <span class="title">CRB-V2V-CPABDS <span class="v2-tag">V2</span></span>
+            <span class="subtitle">V2V协同感知异常行为防御系统 · 推理剧场</span>
+        </div>
+        <div class="header-right">
+            <span class="status-pill" id="systemStatus">演示模式</span>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="control-group scenario-group">
+            <label for="scenarioSelect">场景</label>
+            <select id="scenarioSelect">
+                <option value="">请选择场景</option>
+            </select>
+        </div>
+
+        <div class="mode-switch" id="modeSwitch" role="group" aria-label="展示模式">
+            <button class="mode-btn active" id="theaterModeBtn" data-mode="theater" aria-pressed="true">推理回放</button>
+            <button class="mode-btn" id="comparisonModeBtn" data-mode="comparison" aria-pressed="false">算法对比</button>
+        </div>
+
+        <div class="playback-actions" aria-label="回放控制">
+            <button class="btn" id="playBtn" disabled>▶ 播放</button>
+            <button class="btn" id="resetBtn" disabled>⏮ 重置</button>
+        </div>
+
+        <div class="control-group speed-group">
+            <label for="speedSlider">倍速</label>
+            <input type="range" id="speedSlider" min="0" max="5" step="1" value="2">
+            <span class="value-label" id="speedLabel">1× 实时</span>
+        </div>
+
+        <div class="control-group frame-group">
+            <label for="frameSlider">帧</label>
+            <div class="frame-track">
+                <input type="range" id="frameSlider" min="0" max="199" value="0" disabled>
+                <canvas id="eventBand" title="事件带：点击跳帧"></canvas>
+            </div>
+            <span class="frame-info" id="frameInfo">帧 -- / --</span>
+        </div>
+    </div>
+
+    <main class="main">
+        <section class="left-panel" id="leftPanel">
+            <canvas id="vehicleCanvas"></canvas>
+            <div class="empty-state" id="canvasEmpty">请选择场景后查看车辆态势</div>
+
+            <!-- 左上 HUD：工具条可换行，信息卡始终顺排在其下方，避免文字互相遮挡 -->
+            <div class="canvas-hud">
+                <div class="layer-toolbar" id="layerToolbar" hidden>
+                    <button class="layer-btn god" data-layer="godView" title="快捷键 G：显示或隐藏攻击真值">👁 攻击视角</button>
+                    <span class="toolbar-sep"></span>
+                    <button class="layer-btn" id="followBtn" title="跟随 ego / 自由平移（拖拽画布进入自由模式）">📌 跟随 ego</button>
+                    <button class="layer-btn" id="resetViewBtn" title="双击画布同效">复位视图</button>
+                </div>
+
+                <div class="canvas-overlay" id="overlayInfo" hidden>
+                    <div>攻击类型 <span class="attack-badge none" id="attackBadge">--</span></div>
+                    <div class="god-only" id="attackStateRow" hidden>攻击状态 <span class="attack-state waiting" id="attackState">--</span></div>
+                    <div class="muted-row">车辆 <span id="vehicleCount">--</span> 辆 · 时间 <span id="timeInfo">--</span></div>
+                    <div class="muted-row">过滤状态 <span id="filterInfo">--</span></div>
+                </div>
+            </div>
+
+            <!-- 图例由 main.js 从 config 色令牌生成（单一来源） -->
+            <div class="legend" id="mapLegend" hidden></div>
+
+            <!-- BEV 悬停 tooltip -->
+            <div class="bev-tooltip" id="bevTooltip" hidden></div>
+        </section>
+
+        <section class="right-panel" id="rightPanel">
+            <!-- 检测效果 KPI（P2-T6，逐帧累计、无未来泄露） -->
+            <div class="kpi-row" id="kpiRow" hidden>
+                <div class="kpi-card" id="kpiDetection">
+                    <div class="label">检测延迟</div>
+                    <div class="value" id="kpiDetectionValue">--</div>
+                    <div class="sub" id="kpiDetectionSub">攻击→信誉跌破失信阈值</div>
+                </div>
+                <div class="kpi-card" id="kpiBoxes">
+                    <div class="label">累计过滤框</div>
+                    <div class="value" id="kpiBoxesValue">--</div>
+                    <div class="sub" id="kpiBoxesSub">≤ 当前帧</div>
+                </div>
+                <div class="kpi-card" id="kpiFilteredCavs">
+                    <div class="label">被过滤 CAV</div>
+                    <div class="value" id="kpiFilteredCavsValue">--</div>
+                    <div class="sub" id="kpiFilteredCavsSub">≤ 当前帧去重</div>
+                </div>
+                <div class="kpi-card" id="kpiWorst">
+                    <div class="label">最低信誉</div>
+                    <div class="value" id="kpiWorstValue">--</div>
+                    <div class="sub" id="kpiWorstSub">当前帧</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="section-title"><div class="dot"></div>车辆信誉值实时曲线 <span class="hint">点击曲线跳帧</span></div>
+                    <div class="chart-stats">
+                        <div class="stat-chip"><div class="label">当前时间</div><div class="value" id="chartTime">--</div></div>
+                        <div class="stat-chip"><div class="label">选中车辆</div><div class="value" id="chartSelected">V--</div></div>
+                        <div class="stat-chip"><div class="label">当前信誉</div><div class="value" id="chartScore">--</div></div>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div id="reputationChart"></div>
+                    <div class="empty-state" id="chartEmpty">请选择场景后查看信誉曲线</div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-tabs">
+                    <button class="tab-btn active" id="tabListBtn">车辆列表</button>
+                    <button class="tab-btn" id="tabDetailBtn" disabled>车辆详情 <span id="tabDetailVid"></span></button>
+                </div>
+                <div id="vehicleList">
+                    <div class="empty-state">请选择场景后查看车辆列表</div>
+                </div>
+                <div id="detailPane" hidden>
+                    <div id="detailChart"></div>
+                </div>
+            </div>
+
+            <!-- 独立对比面板：默认隐藏，绝不复用或污染现有信誉/详情模块。 -->
+            <section class="comparison-panel" id="comparisonPanel" hidden aria-label="三算法车辆失信检测评估">
+                <div class="comparison-header">
+                    <div class="section-title"><div class="dot"></div>三算法失信检测对比</div>
+                </div>
+
+                <div class="comparison-data-state" id="comparisonDataState" role="status"></div>
+
+                <div class="comparison-kpi-grid" id="comparisonKpiGrid" aria-label="算法比较指标"></div>
+
+                <section class="decision-lanes-section" aria-label="三算法失信评分">
+                    <div class="decision-lanes-header">
+                        <div class="section-title"><div class="dot"></div>失信评分</div>
+                        <div class="lane-selected" id="comparisonSelectedVehicle">V--</div>
+                    </div>
+                    <div class="decision-lanes" id="decisionLanes"></div>
+                </section>
+
+                <section class="comparison-overview-section" aria-label="五场景总览">
+                    <div class="comparison-overview-header">
+                        <div class="section-title"><div class="dot"></div>五场景总览</div>
+                    </div>
+                    <div class="comparison-overview-content" id="comparisonOverviewContent"></div>
+                </section>
+            </section>
+        </section>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>
