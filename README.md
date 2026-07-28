@@ -2,6 +2,31 @@
 
 本仓库是 CRB-V2V-CPABDS 可视化展示的 Vercel 部署包。运行时结构：
 
+## 已部署实例
+
+- 正式访问地址：<https://crb-v2v-cpabds-display.vercel.app>
+- GitHub 仓库：<https://github.com/ERASSER316/CRB-V2V-CPABDS-display>
+- Vercel 项目：<https://vercel.com/go-flyhighs-projects/crb-v2v-cpabds-display>
+
+生产部署已经完成，并已验证首页、静态资源和五个场景的 API。当前部署由 Vercel
+CLI 发布。为了让 `main` 分支的后续提交自动部署，还需要仓库所有者在 GitHub
+中手工授予 Vercel App 对该仓库的访问权限，具体步骤见下一节。
+
+## 完成 GitHub 自动部署授权
+
+1. 打开 [Vercel 项目 Git 设置](https://vercel.com/go-flyhighs-projects/crb-v2v-cpabds-display/settings/git)。
+2. 点击 **Connect Git Repository**，选择 GitHub。
+3. 如果仓库列表中没有 `ERASSER316/CRB-V2V-CPABDS-display`，点击
+   **Adjust GitHub App Permissions**。
+4. 在 GitHub 的 Vercel App 配置页选择 **Only select repositories**，勾选
+   `CRB-V2V-CPABDS-display`，再点击 **Save**。
+5. 返回 Vercel，刷新仓库列表并连接该仓库；确认 Production Branch 为 `main`。
+
+这一步必须由 GitHub 账号所有者在网页上确认授权，完成后无需重新修改应用代码。
+以后推送到 `main` 会生成生产部署，其他分支和 Pull Request 会生成预览部署。
+
+## 部署包结构
+
 ```text
 app.py              Flask WSGI 入口
 templates/          页面模板
