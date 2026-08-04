@@ -9,11 +9,11 @@
  * CSS 变量（styles.css :root）与本文件同步，两处必须一致。
  */
 
-// ---- 信誉阈值（沿用 V1 语义）----
+// ---- CRB 信誉阈值（场景统一）----
 export const THRESHOLD = {
-  TRUST: 0.7,     // > 0.7 可信
-  DISTRUST: 0.4,  // < 0.4 失信（= “检测帧”判定）
-  EVIDENCE_DROP: 0.3, // 证据分骤降事件阈值（数据核实：brake F50、imp F0、rev/teleport F152、obstacle F177）
+  TRUST: 0.85,    // > 0.85 可信；<=0.85 为低信誉/可疑
+  DISTRUST: 0.5,  // < 0.5 失信（= “检测帧”与整车过滤判定）
+  EVIDENCE_DROP: 0.3, // 证据分骤降事件阈值；具体帧由当前发布的信誉时间线动态判定
 };
 
 // ---- 回放 ----
@@ -40,9 +40,9 @@ export const BEV = {
 export const COLORS = {
   // 状态色（Okabe-Ito · status 职能 · 必须叠加形状/线型/图标冗余）
   status: {
-    trust:    '#009E73', // 可信 >0.7 · 实心
-    warn:     '#E69F00', // 可疑 0.4–0.7 · 实心+虚线描边
-    distrust: '#D55E00', // 失信 <0.4 · 实心+粗描边+✕角标
+    trust:    '#009E73', // 可信 >0.85 · 实心
+    warn:     '#E69F00', // 低信誉/可疑 0.5–0.85 · 实心+虚线描边
+    distrust: '#D55E00', // 失信 <0.5 · 实心+粗描边+✕角标
     fake:     '#CC79A7', // 注入虚假（仅攻击视角）· 紫虚线框+FAKE
     ego:      '#0072B2', // ego · 车形+朝向+视野扇区
     bgVeh:    '#7F8C9B', // 背景交通 · 刻意低色度（去强调，不承担识别）
@@ -87,7 +87,7 @@ export const COLORS = {
 export function repStatus(rep) {
   if (rep == null) return 'unknown';
   if (rep > THRESHOLD.TRUST) return 'trust';
-  if (rep > THRESHOLD.DISTRUST) return 'warn';
+  if (rep >= THRESHOLD.DISTRUST) return 'warn';
   return 'distrust';
 }
 
@@ -109,6 +109,7 @@ export const ATTACK_LABELS = {
   ghost_vehicle_reverse_direction_pcd_only: '幽灵车逆行',
   ghost_vehicle_teleport_pcd_only: '幽灵车瞬移',
   ghost_vehicle_impossible_speed_pcd_only: '幽灵车超速',
+  intermittent_ghost: '间歇性',
   emergency_brake: '紧急刹车欺诈',
   brake_fraud: '紧急刹车欺诈',
   obstacle_fabrication: '障碍物伪造',
@@ -123,7 +124,7 @@ export function formatAttackLabel(label) {
 
 export function classifyAttackBadge(label) {
   if (!label || label === 'none') return 'none';
-  if (label.startsWith('ghost_vehicle')) return 'ghost';
+  if (label.startsWith('ghost_vehicle') || label === 'intermittent_ghost') return 'ghost';
   if (label === 'emergency_brake' || label === 'brake_fraud') return 'brake';
   return 'obstacle';
 }

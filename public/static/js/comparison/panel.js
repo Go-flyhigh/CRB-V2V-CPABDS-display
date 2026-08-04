@@ -7,6 +7,7 @@
 
 import * as store from '../store.js';
 import { fetchComparisonSummary } from './api.js';
+import { formatAttackLabel } from '../config.js';
 import {
   ALGORITHMS, METRICS, algorithmData, algorithmStatus, comparisonComplete,
   finite, formatMetric, metricValue, nativeStateLabel, selectedComparisonVehicle,
@@ -44,20 +45,41 @@ function tolerance(data, metric) {
     : (finite(values.ratio) ?? 0.005);
 }
 
+function ttdSpeedForAlgorithm(data, algorithmId) {
+  const windows = algorithmData(data, algorithmId)?.summary?.per_window_ttd;
+  if (!Array.isArray(windows) || !windows.length) return null;
+  const values = windows.map((row) => {
+    if (String(row?.ttd_status) !== 'detected') return 0;
+    const delay = finite(row?.ttd_frames);
+    const start = finite(row?.start_frame);
+    const end = finite(row?.end_frame);
+    if (delay == null || start == null || end == null) return 0;
+    const length = end - start + 1;
+    return Math.max(0, Math.min(1, (length - 1 - delay) / Math.max(1, length - 3)));
+  });
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
 function numericComparison(data, metricId, scope, frameIdx) {
   const metric = METRICS[metricId];
   const entries = ALGORITHMS.map((algorithm) => ({
     algorithm,
     result: metricValue(data, algorithm.id, metricId, scope, frameIdx),
   }));
-  const allNumeric = entries.every(({ result }) => finite(result.value) != null);
-  if (!metric || !comparisonComplete(data) || !allNumeric || metric.direction === 'status') {
+  const numericEntries = entries.filter(({ result }) => finite(result.value) != null);
+  // “未检出/预存报警”是合法的 TTD 分类结果，不应阻止其他正常检出算法
+  // 在数值子集中比较快慢；若三者均无数值 TTD，则该单元不设最佳。Recall/F1
+  // 仍要求三算法数值齐全，避免把缺测结果排除后产生虚假的局部冠军。
+  const canRank = metric?.unit === 'frames'
+    ? numericEntries.length > 0
+    : numericEntries.length === entries.length;
+  if (!metric || !comparisonComplete(data) || !canRank || metric.direction === 'status') {
     return { entries, bestIds: new Set() };
   }
-  const values = entries.map(({ result }) => finite(result.value));
+  const values = numericEntries.map(({ result }) => finite(result.value));
   const best = metric.direction === 'lower' ? Math.min(...values) : Math.max(...values);
   const near = tolerance(data, metric);
-  const bestIds = new Set(entries
+  const bestIds = new Set(numericEntries
     .filter(({ result }) => Math.abs(finite(result.value) - best) <= near)
     .map(({ algorithm }) => algorithm.id));
 
@@ -350,7 +372,7 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
     overviewContent.append(overviewMetricButtons(state.comparison.selectedMetric));
     const scenarios = getScenarios() || [];
     if (!scenarios.length) {
-      overviewContent.append(make('p', 'comparison-note', '场景目录尚未加载，无法建立五场景矩阵。'));
+      overviewContent.append(make('p', 'comparison-note', '场景目录尚未加载，无法建立多场景矩阵。'));
       return;
     }
     const tableWrap = make('div', 'comparison-matrix-wrap');
@@ -369,7 +391,7 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
     const metricId = state.comparison.selectedMetric;
     for (const scenario of scenarios) {
       const row = document.createElement('tr');
-      row.append(make('th', 'comparison-scene-name', scenario.name || scenario.id));
+      row.append(make('th', 'comparison-scene-name', formatAttackLabel(scenario.attack_label) || scenario.name || scenario.id));
       const cached = overviewCache.get(scenario.id);
       const data = cached?.kind === 'ready' ? cached.data : null;
       const comparison = numericComparison(data, metricId, 'full', 0);
@@ -389,23 +411,48 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
       tbody.append(row);
     }
     table.append(tbody);
-    const allComplete = scenarios.length > 0 && scenarios.every((scenario) => {
+    const readyRunIds = scenarios.map((scenario) => {
+      const cached = overviewCache.get(scenario.id);
+      return cached?.kind === 'ready' ? cached.data?.provenance?.run_id : null;
+    });
+    const uniqueRunIds = [...new Set(readyRunIds.filter(Boolean))];
+    const runIdsConsistent = uniqueRunIds.length === 1
+      && readyRunIds.every((runId) => runId === uniqueRunIds[0]);
+    const allComplete = runIdsConsistent && scenarios.length > 0 && scenarios.every((scenario) => {
       const cached = overviewCache.get(scenario.id);
       return cached?.kind === 'ready' && comparisonComplete(cached.data);
     });
-    // Recall/F1 使用场景等权宏平均。TTD 含分类结果时不求伪平均，
-    // 只显示可计算的场景数，避免把“预存报警/未检出”误当成 0。
+    // Recall/F1 使用场景等权宏平均；TTD 表底部复用六场景宏平均。
     if (allComplete) {
       if (metricId === 'detection_delay') {
+        const macroTtdSpeed = ALGORITHMS.map((algorithm) => {
+          const values = scenarios.map((scenario) => {
+            const data = overviewCache.get(scenario.id)?.data;
+            return ttdSpeedForAlgorithm(data, algorithm.id);
+          });
+          const numeric = values.map(finite);
+          return {
+            algorithm,
+            value: numeric.every((value) => value != null)
+              ? numeric.reduce((sum, value) => sum + value, 0) / numeric.length
+              : null,
+          };
+        });
+        const numeric = macroTtdSpeed.map((entry) => finite(entry.value));
+        const best = numeric.every((value) => value != null) ? Math.max(...numeric) : null;
         const foot = document.createElement('tfoot');
         const row = document.createElement('tr');
-        row.append(make('th', 'comparison-scene-name', '数值 TTD 场景'));
-        for (const algorithm of ALGORITHMS) {
-          const count = scenarios.filter((scenario) => {
-            const data = overviewCache.get(scenario.id)?.data;
-            return finite(metricValue(data, algorithm.id, metricId, 'full', 0).value) != null;
-          }).length;
-          row.append(make('td', algorithm.id === 'crb_v2v_cpabds' ? 'method-column' : '', `${count}/${scenarios.length}`));
+        row.append(make('th', 'comparison-scene-name', '6 场景宏平均'));
+        for (const entry of macroTtdSpeed) {
+          const td = make(
+            'td',
+            entry.algorithm.id === 'crb_v2v_cpabds' ? 'method-column' : '',
+            entry.value == null ? '不适用' : `${(entry.value * 100).toFixed(1)}%`,
+          );
+          if (best != null && finite(entry.value) != null && Math.abs(entry.value - best) <= 0.005) {
+            td.classList.add('best');
+          }
+          row.append(td);
         }
         foot.append(row);
         table.append(foot);
@@ -425,7 +472,7 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
         const best = canRank ? Math.max(...numeric) : null;
         const foot = document.createElement('tfoot');
         const row = document.createElement('tr');
-        row.append(make('th', 'comparison-scene-name', '五场景宏平均'));
+        row.append(make('th', 'comparison-scene-name', `${scenarios.length} 场景宏平均`));
         for (const entry of macro) {
           const td = make('td', entry.algorithm.id === 'crb_v2v_cpabds' ? 'method-column' : '',
             entry.value == null ? '不适用' : formatMetric(metricId, entry.value));
@@ -440,11 +487,80 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
     }
     tableWrap.append(table);
     overviewContent.append(tableWrap);
+    if (allComplete) {
+      const aggregateWrap = make('div', 'comparison-matrix-wrap comparison-aggregate-wrap');
+      const aggregateTable = make('table', 'comparison-matrix comparison-aggregate');
+      const aggregateHead = document.createElement('thead');
+      const aggregateHeader = document.createElement('tr');
+      aggregateHeader.append(make('th', '', '六场景综合'));
+      for (const algorithm of ALGORITHMS) {
+        aggregateHeader.append(make(
+          'th',
+          algorithm.id === 'crb_v2v_cpabds' ? 'method-column' : '',
+          algorithm.shortName,
+        ));
+      }
+      aggregateHead.append(aggregateHeader);
+      aggregateTable.append(aggregateHead);
+      const aggregateBody = document.createElement('tbody');
+      const aggregateByAlgorithm = new Map(ALGORITHMS.map((algorithm) => {
+        const rows = scenarios.map((scenario) => overviewCache.get(scenario.id)?.data);
+        const f1 = rows.map((data) => finite(metricValue(data, algorithm.id, 'f1', 'full', 0).value));
+        const recall = rows.map((data) => finite(metricValue(data, algorithm.id, 'attack_recall', 'full', 0).value));
+        const speed = rows.map((data) => ttdSpeedForAlgorithm(data, algorithm.id));
+        const mean = (values) => values.every((value) => value != null)
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : null;
+        const macroF1 = mean(f1);
+        const macroRecall = mean(recall);
+        const macroTtdSpeed = mean(speed);
+        return [algorithm.id, {
+          macroTtdSpeed,
+          composite: [macroF1, macroRecall, macroTtdSpeed].every((value) => value != null)
+            ? (macroF1 + macroRecall + macroTtdSpeed) / 3
+            : null,
+        }];
+      }));
+      const aggregateRows = [
+        {
+          label: '三指标等权综合分',
+          key: 'composite',
+          format: (value) => value == null ? '不适用' : value.toFixed(3),
+          tolerance: 0.005,
+        },
+      ];
+      for (const definition of aggregateRows) {
+        const row = document.createElement('tr');
+        row.append(make('th', 'comparison-scene-name', definition.label));
+        const values = ALGORITHMS.map(({ id }) => aggregateByAlgorithm.get(id)[definition.key]);
+        const numeric = values.map(finite);
+        const best = numeric.every((value) => value != null) ? Math.max(...numeric) : null;
+        ALGORITHMS.forEach((algorithm, index) => {
+          const value = values[index];
+          const td = make(
+            'td',
+            algorithm.id === 'crb_v2v_cpabds' ? 'method-column' : '',
+            definition.format(value),
+          );
+          if (best != null && finite(value) != null && Math.abs(value - best) <= definition.tolerance) {
+            td.classList.add('best');
+          }
+          row.append(td);
+        });
+        aggregateBody.append(row);
+      }
+      aggregateTable.append(aggregateBody);
+      aggregateWrap.append(aggregateTable);
+      overviewContent.append(aggregateWrap);
+    }
     if (!allComplete) {
-      overviewContent.append(make('p', 'comparison-note', '五场景总排名等待全部场景完成；当前矩阵不生成总冠军。'));
+      const message = uniqueRunIds.length > 1 || (uniqueRunIds.length === 1 && !runIdsConsistent)
+        ? '六个场景的 run_id 不一致或缺失；为防止混跑结果，当前矩阵不生成总排名。'
+        : `${scenarios.length} 场景总排名等待全部场景完成；当前矩阵不生成总冠军。`;
+      overviewContent.append(make('p', 'comparison-note', message));
     }
     if (!overviewLoading) void ensureOverview();
-    else overviewContent.append(make('p', 'comparison-note', '正在按需加载五场景轻量结果…'));
+    else overviewContent.append(make('p', 'comparison-note', `正在按需加载 ${scenarios.length} 场景轻量结果…`));
   }
 
   function renderTab() {

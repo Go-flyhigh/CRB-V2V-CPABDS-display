@@ -138,6 +138,12 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/favicon.ico")
+def favicon():
+    """Avoid a browser-generated 404 in console-only smoke tests."""
+    return make_response("", 204)
+
+
 # ============ 只读 API（保留 V1 的 6 个端点，另加可选对比结果端点） ============
 
 

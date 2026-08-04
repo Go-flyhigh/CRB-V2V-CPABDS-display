@@ -75,7 +75,7 @@ function buildTooltipHtml(target) {
   }
   if (isCav) {
     const rep = reps[vid] ?? null;
-    const statusText = { trust: '可信', warn: '可疑', distrust: '失信', unknown: '无数据' }[repStatus(rep)];
+    const statusText = { trust: '可信', warn: '低信誉', distrust: '失信', unknown: '无数据' }[repStatus(rep)];
     rows.push(`<div class="tt-row">信誉 <b style="color:${repColor(rep)}">${rep == null ? '--' : rep.toFixed(3)}</b> · ${statusText}</div>`);
     if (metrics) {
       const ev = metrics.evidence_score;

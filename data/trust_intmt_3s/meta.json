@@ -1,0 +1,101 @@
+{
+  "episode_name": "trust_intmt_3s",
+  "map": "Town03",
+  "num_frames": 200,
+  "num_vehicles": 10,
+  "ego_cav_id": "146",
+  "adversary_cav_ids": [
+    "147"
+  ],
+  "cav_ids": [
+    "146",
+    "147",
+    "148",
+    "149",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155"
+  ],
+  "attack_label": "intermittent_ghost",
+  "source_attack_label": "intermittent_ghost",
+  "attack_params": {
+    "violation_mode": "intermittent_simple_ghost",
+    "period_s": 3.0,
+    "period_frames": 15,
+    "burst_frames": 5,
+    "on_frames": 70,
+    "d_fwd": 8.0,
+    "d_lat": 0.0,
+    "num_points": 500,
+    "fake_ado_id": -2004,
+    "seed": 0,
+    "configured_period_s": 3.0,
+    "actual_period_frames": 15,
+    "actual_period_seconds": 0.75,
+    "source_dataset": "/home/wcp/c4/Dataset/intmt_3s",
+    "attack_truth_source": "presence of vehicles[-2004] in adversary CAV 147 YAML",
+    "metadata_consistency_note": "period_s=3.0 conflicts with period_frames=15 at 20 Hz; frame-level injected-actor presence is authoritative",
+    "active_windows": [
+      [
+        0,
+        4
+      ],
+      [
+        15,
+        19
+      ],
+      [
+        30,
+        34
+      ],
+      [
+        45,
+        49
+      ],
+      [
+        60,
+        64
+      ],
+      [
+        75,
+        79
+      ],
+      [
+        90,
+        94
+      ],
+      [
+        105,
+        109
+      ],
+      [
+        120,
+        124
+      ],
+      [
+        135,
+        139
+      ],
+      [
+        150,
+        154
+      ],
+      [
+        165,
+        169
+      ],
+      [
+        180,
+        184
+      ],
+      [
+        195,
+        199
+      ]
+    ]
+  },
+  "fixed_delta_seconds": 0.05
+}

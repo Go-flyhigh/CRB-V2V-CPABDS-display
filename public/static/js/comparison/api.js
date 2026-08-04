@@ -47,7 +47,7 @@ export async function loadComparison(scenarioId) {
   }
 }
 
-/** 五场景总览使用：不取消当前主对比请求，单独获取一个轻量/完整结果包。 */
+/** 多场景总览使用：不取消当前主对比请求，单独获取一个轻量/完整结果包。 */
 export async function fetchComparisonSummary(scenarioId) {
   const url = `/api/scenario/${encodeURIComponent(scenarioId)}/comparison`;
   const response = await fetch(url);

@@ -182,6 +182,8 @@ export function initDetailChart() {
     markerState = sig;
 
     const dt = d.dt;
+    const attackWindows = d.attackWindows
+      ?? [[d.onsetFrame, d.attackEndFrame ?? d.numFrames - 1]];
     chart.setOption({
       series: [{
         id: 'metric-reputation_after',
@@ -198,10 +200,10 @@ export function initDetailChart() {
         },
         markArea: {
           silent: true,
-          data: god ? [[
-            { xAxis: d.onsetFrame * dt, itemStyle: { color: COLORS.events.attackWindow } },
-            { xAxis: (d.attackEndFrame ?? d.numFrames - 1) * dt },
-          ]] : [],
+          data: god ? attackWindows.map(([start, end]) => [
+            { xAxis: start * dt, itemStyle: { color: COLORS.events.attackWindow } },
+            { xAxis: end * dt },
+          ]) : [],
         },
       }],
     });

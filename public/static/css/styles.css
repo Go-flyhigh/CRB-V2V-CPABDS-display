@@ -418,6 +418,7 @@ body {
 .comparison-metric-btn { min-height: 30px; padding: 0 10px; border-color: #34415f; font-size: 10.5px; }
 .comparison-metric-btn.active { color: #bae6fd; border-color: rgba(56, 189, 248, 0.58); background: rgba(14, 165, 233, 0.14); }
 .comparison-matrix-wrap { overflow-x: auto; border: 1px solid #303c5a; border-radius: 8px; }
+.comparison-aggregate-wrap { margin-top: 10px; }
 .comparison-matrix { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; font-size: 11px; font-variant-numeric: tabular-nums; }
 .comparison-matrix th, .comparison-matrix td { padding: 8px 10px; border-bottom: 1px solid rgba(41, 50, 79, 0.9); text-align: right; white-space: nowrap; }
 .comparison-matrix th:first-child, .comparison-matrix td:first-child { text-align: left; }

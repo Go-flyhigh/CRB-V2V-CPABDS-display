@@ -20,15 +20,20 @@
     "155"
   ],
   "attack_label": "obstacle_fabrication",
+  "source_attack_label": "static_obstacle",
   "attack_params": {
-    "k": 1,
-    "offset_m": 15.0,
-    "lateral_m": 1.5,
+    "ATTACKER_INDEX": 1,
+    "OBSTACLE_FRACTION": 0.6,
+    "DEFAULT_DIST": 11.0,
+    "MAX_RANGE": 80.0,
+    "LANE_LAT": 4.0,
+    "SHELL_POINTS": 520,
+    "JITTER_STD": 0.03,
+    "OBSTACLE_ID": 90001,
     "motion_mode": "static",
-    "walk_speed_mps": 0.5,
-    "pedestrian_ado_id": -3001,
-    "inject_pcd_mode": "raycast",
-    "anchor": "adversary"
+    "obstacle_id": 90001,
+    "inject_pcd_mode": "static_obstacle_shell",
+    "source_dataset": "/home/wcp/c4/Dataset/obstacle_v3"
   },
   "fixed_delta_seconds": 0.05
 }

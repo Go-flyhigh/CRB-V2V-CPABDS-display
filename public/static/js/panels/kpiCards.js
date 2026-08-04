@@ -37,7 +37,7 @@ export function initKpiCards() {
     } else if (d.detectionFrame == null && t >= d.numFrames - 1) {
       // 播到结尾仍未检测：如实呈现算法边界（obstacle 场景）
       els.detValue.textContent = '未达失信阈值';
-      els.detSub.textContent = '信誉持续降级中（未跌破 0.4）';
+      els.detSub.textContent = `信誉持续降级中（未跌破 ${THRESHOLD.DISTRUST.toFixed(1)}）`;
       els.detCard.classList.add('alert');
     } else {
       els.detValue.textContent = '——';
@@ -82,7 +82,7 @@ export function initKpiCards() {
       els.worstValue.textContent = `V${worstVid} ${worstRep.toFixed(3)}`;
       els.worstValue.style.color = repColor(worstRep);
       els.worstSub.textContent = worstRep > THRESHOLD.TRUST
-        ? '全员可信' : (worstRep > THRESHOLD.DISTRUST ? '存在可疑车辆' : '存在失信车辆');
+        ? '全员可信' : (worstRep >= THRESHOLD.DISTRUST ? '存在低信誉车辆' : '存在失信车辆');
     }
   }
 

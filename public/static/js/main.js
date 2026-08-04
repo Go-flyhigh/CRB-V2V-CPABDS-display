@@ -8,7 +8,7 @@
  */
 
 import {
-  COLORS, PLAYBACK, LAYER_DEFAULTS,
+  COLORS, PLAYBACK, LAYER_DEFAULTS, THRESHOLD,
   formatAttackLabel, classifyAttackBadge, repColor,
 } from './config.js';
 import * as store from './store.js';
@@ -130,8 +130,8 @@ function applyPresentationMode() {
   $('comparisonModeBtn').setAttribute('aria-pressed', comparisonActive ? 'true' : 'false');
   if (state.meta) {
     $('systemStatus').textContent = comparisonActive
-      ? `${state.meta.map} · 离线算法对比`
-      : `${state.meta.map} · ${state.meta.num_frames} 帧 · ${state.meta.num_vehicles} 车`;
+      ? '算法对比'
+      : `${state.meta.num_frames} 帧 · ${state.meta.num_vehicles} 车`;
   }
 }
 
@@ -170,7 +170,7 @@ function applyEmptyState(empty) {
 
 function applyScenarioStatics(meta) {
   $('systemStatus').textContent =
-    `${meta.map} · ${meta.num_frames} 帧 · ${meta.num_vehicles} 车`;
+    `${meta.num_frames} 帧 · ${meta.num_vehicles} 车`;
   $('frameSlider').max = Math.max(0, (meta.num_frames ?? 1) - 1);
   const badge = $('attackBadge');
   badge.textContent = formatAttackLabel(meta.attack_label);
@@ -210,13 +210,19 @@ function updateAttackState() {
   const d = s.derived;
   if (!d) { el.textContent = '--'; el.className = 'attack-state waiting'; return; }
   const t = s.frameIdx;
+  const windows = d.attackWindows ?? [[d.onsetFrame, d.attackEndFrame ?? d.numFrames - 1]];
+  const activeIndex = windows.findIndex(([start, end]) => t >= start && t <= end);
+  const nextWindow = windows.find(([start]) => start > t);
   let text, cls;
   if (t < d.onsetFrame) {
     text = `未触发 F${d.onsetFrame}`; cls = 'waiting';
-  } else if (d.attackEndFrame == null) {
-    text = '攻击中（持续）'; cls = 'active';
-  } else if (t <= d.attackEndFrame) {
-    text = '攻击中'; cls = 'active';
+  } else if (activeIndex >= 0) {
+    text = windows.length > 1
+      ? `攻击中（第 ${activeIndex + 1}/${windows.length} 段）`
+      : (d.attackEndFrame == null ? '攻击中（持续）' : '攻击中');
+    cls = 'active';
+  } else if (nextWindow) {
+    text = `间歇期 · 下次 F${nextWindow[0]}`; cls = 'waiting';
   } else {
     text = '已结束'; cls = 'done';
   }
@@ -227,9 +233,9 @@ function updateAttackState() {
 // ---------- 图例（由色令牌生成，形状冗余同步展示） ----------
 function buildLegend() {
   const items = [
-    { color: COLORS.status.trust, label: '可信车辆 (信誉 > 0.7)', glyph: '▲' },
-    { color: COLORS.status.warn, label: '可疑车辆 (0.4–0.7)', glyph: '◆', dashed: true },
-    { color: COLORS.status.distrust, label: '失信车辆 (< 0.4)', glyph: '✕' },
+    { color: COLORS.status.trust, label: `可信车辆 (信誉 > ${THRESHOLD.TRUST.toFixed(2)})`, glyph: '▲' },
+    { color: COLORS.status.warn, label: `低信誉车辆 (${THRESHOLD.DISTRUST.toFixed(2)}–${THRESHOLD.TRUST.toFixed(2)})`, glyph: '◆', dashed: true },
+    { color: COLORS.status.distrust, label: `失信车辆 (< ${THRESHOLD.DISTRUST.toFixed(2)})`, glyph: '✕' },
     { color: COLORS.status.bgVeh, label: '背景交通' },
     { color: COLORS.status.ego, label: 'ego（本车 · 视野扇区）' },
     { color: COLORS.ui.coverage, label: '协同感知范围（自适应）', ring: true },
@@ -424,7 +430,7 @@ async function boot() {
     scenarios.forEach((s) => {
       const opt = document.createElement('option');
       opt.value = s.id;
-      opt.textContent = `${formatAttackLabel(s.attack_label)} - ${s.map}`;
+      opt.textContent = formatAttackLabel(s.attack_label);
       select.appendChild(opt);
     });
     hideMask();

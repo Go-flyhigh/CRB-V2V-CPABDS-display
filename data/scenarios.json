@@ -53,5 +53,16 @@
     "adversary_cav_ids": [
       "147"
     ]
+  },
+  {
+    "id": "trust_intmt_3s",
+    "name": "间歇性 - Trust Logs - Town03",
+    "attack_label": "intermittent_ghost",
+    "map": "Town03",
+    "num_frames": 200,
+    "num_vehicles": 10,
+    "adversary_cav_ids": [
+      "147"
+    ]
   }
 ]

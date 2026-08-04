@@ -9,9 +9,11 @@
  *  - firstFilterByVid    每 CAV 首次被过滤帧（列表状态 / 误过滤 KPI）
  *  - worldBounds         全帧包围盒（Tier0 路网 / 视图钳制）
  *
- * 真实数据基准（自检验依据，见 DATA_REFERENCE §4）：
- *   brake  onset=50 detection=60 · rev onset=0 detection=164 · teleport detection=154
- *   imp    detection=16 · obstacle V147 filter=128 / safe pass=161 / detection=null
+ * 真实数据基准（CRB 失信/过滤阈值统一为 0.5）：
+ *   brake  onset=50 detection/filter=58 · rev onset=0 detection/filter=133
+ *   teleport detection/filter=34 · imp detection/filter=12 · obstacle detection/filter=null
+ * 低信誉阈值 0.85 的首次触发：
+ *   brake=52 · rev=31 · teleport=10 · imp=2 · obstacle=70
  */
 
 import { THRESHOLD, EVENT_META, formatAttackLabel } from './config.js';
@@ -42,6 +44,42 @@ function findAttackEnd(meta, frames) {
     if (Number.isFinite(start) && Number.isFinite(dur)) return start + dur - 1;
   }
   return null; // 持续型：至最后一帧
+}
+
+/** 将 frames.attack 的活动帧合并为多个闭区间；旧场景仍自然得到单一区间。 */
+function findAttackWindows(meta, frames) {
+  const activeFrames = frames
+    .filter((frame) => {
+      const attack = frame.attack || {};
+      return Boolean(
+        attack.is_active
+        || (attack.injected_ado_ids && attack.injected_ado_ids.length),
+      );
+    })
+    .map((frame) => Number(frame.frame_idx))
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (activeFrames.length) {
+    const windows = [];
+    let start = activeFrames[0];
+    let previous = start;
+    for (const frame of activeFrames.slice(1)) {
+      if (frame === previous + 1) {
+        previous = frame;
+      } else {
+        windows.push([start, previous]);
+        start = previous = frame;
+      }
+    }
+    windows.push([start, previous]);
+    return windows;
+  }
+
+  // 兼容没有逐帧攻击字段的旧 brake 数据。
+  const onset = findOnset(meta, frames);
+  const end = findAttackEnd(meta, frames);
+  return [[onset, end ?? Math.max(0, frames.length - 1)]];
 }
 
 /** obstacle：原始 ego 轨迹与静态伪造障碍物的最近通过帧。 */
@@ -113,8 +151,8 @@ export function deriveScenario(meta, frames, reputation) {
     firstFilterFrame = firstFilterByVid[adversaryId];
   }
 
-  // obstacle 的成功条件是攻击源贡献被框级过滤，而非必须跌破 0.4 信誉阈值。
-  // 最近通过帧来自原始 ego 轨迹，仅在到达该帧时发布“无需避让”结果。
+  // obstacle 的成功条件是攻击源贡献被框级过滤。统一 0.5 后若没有实际过滤，
+  // 不再生成“已过滤/安全通过”叙事；最近通过帧只在过滤确实先发生时使用。
   let obstacleOutcome = null;
   if (meta.attack_label === 'obstacle_fabrication' && firstFilterFrame != null) {
     const closest = findObstacleClosestApproach(frames);
@@ -137,8 +175,12 @@ export function deriveScenario(meta, frames, reputation) {
     .sort((a, b) => a.frame - b.frame);
 
   // ---- 攻击窗口 / ego 避让（按 attack_label 分派 attack_params）----
-  const onsetFrame = findOnset(meta, frames);
-  const attackEndFrame = findAttackEnd(meta, frames);
+  const attackWindows = findAttackWindows(meta, frames);
+  const onsetFrame = attackWindows[0]?.[0] ?? findOnset(meta, frames);
+  const configuredEnd = findAttackEnd(meta, frames);
+  const attackEndFrame = attackWindows.length > 1
+    ? attackWindows[attackWindows.length - 1][1]
+    : configuredEnd;
   let egoResponse = null;
   {
     const s = Number(params.response_start_frame);
@@ -194,9 +236,20 @@ export function deriveScenario(meta, frames, reputation) {
     });
   };
 
-  push(onsetFrame, 'attack_onset', adversaryId,
-    `攻击开始（${formatAttackLabel(meta.attack_label)}）`);
-  if (attackEndFrame != null) push(attackEndFrame, 'attack_end', adversaryId, '攻击窗口结束');
+  if (attackWindows.length > 1) {
+    attackWindows.forEach(([start, end], index) => {
+      push(start, 'attack_onset', adversaryId,
+        `间歇攻击第 ${index + 1}/${attackWindows.length} 段开始`);
+      push(end, 'attack_end', adversaryId,
+        `间歇攻击第 ${index + 1}/${attackWindows.length} 段结束`);
+    });
+  } else {
+    push(onsetFrame, 'attack_onset', adversaryId,
+      `攻击开始（${formatAttackLabel(meta.attack_label)}）`);
+    if (attackEndFrame != null) {
+      push(attackEndFrame, 'attack_end', adversaryId, '攻击窗口结束');
+    }
+  }
   push(evidenceDropFrame, 'evidence_drop', adversaryId);
   // 每辆曾被过滤的 CAV 都产生 first_box_filter 事件（系统输出，无泄露）。
   // obstacle 攻击源改用专属成功事件，避免与普通框过滤提示重复。
@@ -224,7 +277,7 @@ export function deriveScenario(meta, frames, reputation) {
 
   return {
     adversaryId, egoId, dt, numFrames,
-    onsetFrame, attackEndFrame,
+    onsetFrame, attackEndFrame, attackWindows,
     warnFrame, detectionFrame, evidenceDropFrame, firstFilterFrame,
     egoResponse, brakeVisual, obstacleOutcome,
     events,

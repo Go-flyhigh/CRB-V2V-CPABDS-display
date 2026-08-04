@@ -85,6 +85,8 @@ export function initVehicleList() {
         parts.push('无数据');
       } else if (rep < THRESHOLD.DISTRUST) {
         parts.push('已判失信');
+      } else if (rep <= THRESHOLD.TRUST) {
+        parts.push('低信誉');
       }
       const filteringNow = m && m.num_boxes_before != null && m.num_boxes_after != null
         && m.num_boxes_after < m.num_boxes_before;

@@ -34,6 +34,19 @@ export function initReputationChart() {
     const timeline = state.reputation.timeline ?? [];
     const cavIds = (state.meta.cav_ids ?? []).map(String);
     const derived = state.derived;
+    const dt = Number(state.meta.fixed_delta_seconds) || 0.05;
+    const declaredFrameCount = Number(state.meta.num_frames);
+    const frameCount = Number.isFinite(declaredFrameCount) && declaredFrameCount > 0
+      ? declaredFrameCount
+      : timeline.length;
+    const lastTimestamp = Number(timeline[timeline.length - 1]?.timestamp);
+    // F0…F199 的采样点止于 9.95 s，但 200 个 0.05 s 帧覆盖完整的 10 s
+    // 回放区间。坐标轴展示区间终点，曲线数据仍保持原始采样时间不变。
+    const playbackEnd = Math.max(
+      frameCount * dt,
+      Number.isFinite(lastTimestamp) ? lastTimestamp + dt : 0,
+    );
+    const axisMax = Math.max(1, Math.round(playbackEnd * 1e9) / 1e9);
 
     let dataMin = 1;
     const mkData = (vid) => timeline.map((snap) => {
@@ -97,7 +110,7 @@ export function initReputationChart() {
             yAxis: THRESHOLD.TRUST,
             lineStyle: { color: COLORS.status.trust, type: 'dashed', width: 1 },
             label: {
-              show: true, formatter: '可信阈值', color: COLORS.status.trust, fontSize: 10,
+              show: true, formatter: `低信誉阈值 ${THRESHOLD.TRUST.toFixed(2)}`, color: COLORS.status.trust, fontSize: 10,
               position: 'insideStartTop', distance: [4, 0],
               backgroundColor: 'rgba(11,16,32,0.78)', padding: [1, 4], borderRadius: 3,
             },
@@ -106,7 +119,7 @@ export function initReputationChart() {
             yAxis: THRESHOLD.DISTRUST,
             lineStyle: { color: COLORS.status.distrust, type: 'dashed', width: 1 },
             label: {
-              show: true, formatter: '失信阈值', color: COLORS.status.distrust, fontSize: 10,
+              show: true, formatter: `失信阈值 ${THRESHOLD.DISTRUST.toFixed(1)}`, color: COLORS.status.distrust, fontSize: 10,
               position: 'insideStartTop', distance: [4, 0],
               backgroundColor: 'rgba(11,16,32,0.78)', padding: [1, 4], borderRadius: 3,
             },
@@ -115,13 +128,15 @@ export function initReputationChart() {
       };
     }
 
-    // y 轴自适应下界，但保证失信阈值线可见（≤0.35）
-    const yMin = Math.max(0, Math.min(0.35, Math.floor((dataMin - 0.05) * 20) / 20));
+    // y 轴自适应下界，但始终给失信阈值线保留 0.05 的下方空间。
+    const thresholdFloor = Math.max(0, THRESHOLD.DISTRUST - 0.05);
+    const yMin = Math.max(0, Math.min(thresholdFloor, Math.floor((dataMin - 0.05) * 20) / 20));
 
     chart.setOption({
       backgroundColor: 'transparent',
-      // y 轴标题纵向居中并预留独立左边距，避免与顶部 CAV 图例相互覆盖。
-      grid: { top: 34, right: 46, bottom: 24, left: 36, containLabel: true },
+      // 顶部独立保留“图例 + 事件标注”双层空间；高信誉区的 pin 标签不再
+      // 上探到 CAV 图例。底部空间则供居中的时间轴标题使用。
+      grid: { top: 72, right: 46, bottom: 38, left: 36, containLabel: true },
       tooltip: {
         trigger: 'axis',
         backgroundColor: 'rgba(15,23,42,0.96)',
@@ -149,8 +164,10 @@ export function initReputationChart() {
       xAxis: {
         type: 'value',
         name: '时间 (s)',
+        nameLocation: 'middle',
+        nameGap: 28,
         min: 0,
-        max: timeline[timeline.length - 1]?.timestamp || 1,
+        max: axisMax,
         nameTextStyle: { color: '#94a3b8', fontSize: 11 },
         axisLine: { lineStyle: { color: '#334155' } },
         axisLabel: { color: '#94a3b8', fontSize: 10 },
@@ -226,16 +243,20 @@ export function initReputationChart() {
 
     // 攻击窗口（真值）仅攻击视角
     const dt = d.dt;
-    const areas = god ? [[
+    const attackWindows = d.attackWindows
+      ?? [[d.onsetFrame, d.attackEndFrame ?? d.numFrames - 1]];
+    const areas = god ? attackWindows.map(([start, end], index) => [
       {
-        xAxis: d.onsetFrame * dt,
+        xAxis: start * dt,
         itemStyle: { color: COLORS.events.attackWindow },
         label: {
-          show: true, formatter: '攻击窗口', color: '#fecaca', fontSize: 9, position: 'insideTop',
+          show: index === 0,
+          formatter: attackWindows.length > 1 ? '间歇攻击窗口' : '攻击窗口',
+          color: '#fecaca', fontSize: 9, position: 'insideTop',
         },
       },
-      { xAxis: (d.attackEndFrame ?? d.numFrames - 1) * dt },
-    ]] : [];
+      { xAxis: end * dt },
+    ]) : [];
 
     chart.setOption({
       series: [{

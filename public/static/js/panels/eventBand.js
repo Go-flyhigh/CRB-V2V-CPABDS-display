@@ -51,7 +51,8 @@ export function initEventBand() {
     segments = {
       numFrames: d.numFrames,
       filterRanges: toRanges(d.filterActive),
-      attackWindow: [d.onsetFrame, d.attackEndFrame ?? d.numFrames - 1],
+      attackWindows: d.attackWindows
+        ?? [[d.onsetFrame, d.attackEndFrame ?? d.numFrames - 1]],
       egoResponse: d.egoResponse ? [d.egoResponse.start, d.egoResponse.end] : null,
     };
   }
@@ -77,7 +78,11 @@ export function initEventBand() {
     const clampT = god ? null : t; // 系统视角只画 ≤t
 
     // 攻击窗口底色（真值，仅攻击视角）
-    if (god) fillRange(segments.attackWindow, COLORS.events.attackWindow, 0, cssH);
+    if (god) {
+      for (const range of segments.attackWindows) {
+        fillRange(range, COLORS.events.attackWindow, 0, cssH);
+      }
+    }
 
     // 过滤活跃区间（系统输出）
     for (const r of segments.filterRanges) {
