@@ -89,6 +89,9 @@
 
             <!-- BEV 悬停 tooltip -->
             <div class="bev-tooltip" id="bevTooltip" hidden></div>
+
+            <!-- 动态提示词：固定在雷达图右下角，不遮挡右侧曲线与车辆列表 -->
+            <div class="toast-container" id="toastContainer"></div>
         </section>
 
         <section class="right-panel" id="rightPanel">
@@ -171,8 +174,6 @@
             </section>
         </section>
     </main>
-
-    <div class="toast-container" id="toastContainer"></div>
 
     <script type="module" src="/static/js/main.js"></script>
 </body>
