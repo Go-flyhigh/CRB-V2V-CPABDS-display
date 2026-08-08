@@ -1,7 +1,7 @@
 /**
  * config.js — V2 全局常量与色板令牌（单一来源）
  *
- * 色板经 dataviz skill 校验器验证（2026-07-10，dark surface #0b1020）：
+ * 色板经 dataviz skill 校验器验证（2026-07-10，light surface #F7F8FA）：
  *  - status 五色：CVD 相邻 ΔE 18.3（PASS）、对比度全部 ≥3:1（PASS）；
  *    橙/粉亮度带越界属 status 职能豁免，强制配合形状/图标冗余使用。
  *  - SERIES 十色（曲线类别色，固定顺序按 cav_ids 下标分配、绝不循环）：
@@ -53,19 +53,21 @@ export const COLORS = {
            '#907900', '#7866d2', '#b93c4e', '#278d73', '#ad6723'],
   // 界面
   ui: {
-    bg: '#0b1020',
-    panel: '#12192e',
-    grid: '#162033',
-    gridLabel: '#3b4a6b',
-    text: '#edf3ff',
-    muted: '#94a3b8',
-    accent: '#38bdf8',
-    road: 'rgba(148, 163, 184, 0.10)',   // Tier0/Tier2 道路底色
-    roadEdge: 'rgba(148, 163, 184, 0.22)',
-    coverage: 'rgba(66, 165, 245, 0.20)',
-    coverageFill: 'rgba(66, 165, 245, 0.03)',
-    selection: '#38bdf8',
-    cursor: '#38bdf8',
+    bg: '#F7F8FA',
+    panel: '#FFFFFF',
+    grid: '#E4E4E7',
+    gridLabel: '#71717A',
+    text: '#18181B',
+    muted: '#71717A',
+    accent: '#2563EB',
+    border: '#E4E4E7',
+    axis: '#D4D4D8',
+    road: 'rgba(82, 82, 91, 0.10)',   // Tier0/Tier2 道路底色
+    roadEdge: 'rgba(82, 82, 91, 0.24)',
+    coverage: 'rgba(37, 99, 235, 0.20)',
+    coverageFill: 'rgba(37, 99, 235, 0.04)',
+    selection: '#2563EB',
+    cursor: '#2563EB',
   },
   // 事件带 / 事件标注
   events: {

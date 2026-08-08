@@ -12,7 +12,7 @@ import { visibleEvents } from '../events.js';
 
 export function initReputationChart() {
   const el = document.getElementById('reputationChart');
-  const chart = echarts.init(el, 'dark');
+  const chart = echarts.init(el);
   let lastSelected = null;
   let lastSignature = '';
   let adversarySeriesId = null;
@@ -112,7 +112,7 @@ export function initReputationChart() {
             label: {
               show: true, formatter: `低信誉阈值 ${THRESHOLD.TRUST.toFixed(2)}`, color: COLORS.status.trust, fontSize: 10,
               position: 'insideStartTop', distance: [4, 0],
-              backgroundColor: 'rgba(11,16,32,0.78)', padding: [1, 4], borderRadius: 3,
+              backgroundColor: COLORS.ui.panel, padding: [1, 4], borderRadius: 3,
             },
           },
           {
@@ -121,7 +121,7 @@ export function initReputationChart() {
             label: {
               show: true, formatter: `失信阈值 ${THRESHOLD.DISTRUST.toFixed(1)}`, color: COLORS.status.distrust, fontSize: 10,
               position: 'insideStartTop', distance: [4, 0],
-              backgroundColor: 'rgba(11,16,32,0.78)', padding: [1, 4], borderRadius: 3,
+              backgroundColor: COLORS.ui.panel, padding: [1, 4], borderRadius: 3,
             },
           },
         ],
@@ -139,9 +139,9 @@ export function initReputationChart() {
       grid: { top: 72, right: 46, bottom: 38, left: 36, containLabel: true },
       tooltip: {
         trigger: 'axis',
-        backgroundColor: 'rgba(15,23,42,0.96)',
-        borderColor: '#475569',
-        textStyle: { color: '#edf3ff', fontSize: 12 },
+        backgroundColor: COLORS.ui.panel,
+        borderColor: COLORS.ui.border,
+        textStyle: { color: COLORS.ui.text, fontSize: 12 },
         axisPointer: { type: 'line', lineStyle: { color: COLORS.ui.accent, width: 1 } },
         formatter: (params) => {
           if (!params.length) return '';
@@ -156,9 +156,9 @@ export function initReputationChart() {
       },
       legend: {
         type: 'scroll',
-        textStyle: { color: '#94a3b8', fontSize: 11 },
-        pageIconColor: '#94a3b8',
-        pageTextStyle: { color: '#94a3b8' },
+        textStyle: { color: COLORS.ui.muted, fontSize: 11 },
+        pageIconColor: COLORS.ui.muted,
+        pageTextStyle: { color: COLORS.ui.muted },
         top: 0, left: 4, right: 4,
       },
       xAxis: {
@@ -168,10 +168,10 @@ export function initReputationChart() {
         nameGap: 28,
         min: 0,
         max: axisMax,
-        nameTextStyle: { color: '#94a3b8', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#334155' } },
-        axisLabel: { color: '#94a3b8', fontSize: 10 },
-        splitLine: { lineStyle: { color: '#1e293b' } },
+        nameTextStyle: { color: COLORS.ui.gridLabel, fontSize: 11 },
+        axisLine: { lineStyle: { color: COLORS.ui.axis } },
+        axisLabel: { color: COLORS.ui.gridLabel, fontSize: 10 },
+        splitLine: { lineStyle: { color: COLORS.ui.grid } },
       },
       yAxis: {
         type: 'value',
@@ -180,10 +180,10 @@ export function initReputationChart() {
         nameRotate: 90,
         nameGap: 30,
         min: yMin, max: 1,
-        nameTextStyle: { color: '#94a3b8', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#334155' } },
-        axisLabel: { color: '#94a3b8', fontSize: 10 },
-        splitLine: { lineStyle: { color: '#1e293b' } },
+        nameTextStyle: { color: COLORS.ui.gridLabel, fontSize: 11 },
+        axisLine: { lineStyle: { color: COLORS.ui.axis } },
+        axisLabel: { color: COLORS.ui.gridLabel, fontSize: 10 },
+        splitLine: { lineStyle: { color: COLORS.ui.grid } },
       },
       series,
     }, true); // 场景切换时整图重建是合法的（build 路径，非帧路径）
@@ -223,8 +223,8 @@ export function initReputationChart() {
         value: label,
         itemStyle: { color },
         label: {
-          show: true, formatter: label, fontSize: 9, color: '#edf3ff',
-          backgroundColor: 'rgba(15,23,42,0.88)', padding: [2, 4], borderRadius: 3,
+          show: true, formatter: label, fontSize: 9, color: COLORS.ui.text,
+          backgroundColor: COLORS.ui.panel, padding: [2, 4], borderRadius: 3,
           position: 'top', distance: 8,
         },
       };
@@ -296,9 +296,9 @@ export function initReputationChart() {
           x: labelOnLeft ? x - 6 : x + 6, y: upper[1] + 4,
           style: {
             text: `F${state.frameIdx}`,
-            fill: '#bae6fd', font: '10px monospace',
+            fill: COLORS.ui.accent, font: '10px monospace',
             align: labelOnLeft ? 'right' : 'left', verticalAlign: 'top',
-            backgroundColor: 'rgba(15,23,42,0.86)', padding: [2, 5], borderRadius: 4,
+            backgroundColor: COLORS.ui.panel, padding: [2, 5], borderRadius: 4,
           },
         },
       ],

@@ -181,7 +181,7 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
     }));
     const thresholds = algorithmEntry?.thresholds ?? {};
     const distrust = finite(thresholds.distrust);
-    const chart = echarts.init(chartHost, 'dark');
+    const chart = echarts.init(chartHost);
     const timelineEndTimes = ALGORITHMS.map(({ id }) => {
       const candidate = algorithmData(data, id)?.timeline;
       const last = Array.isArray(candidate) ? candidate[candidate.length - 1] : null;
@@ -196,9 +196,9 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
       grid: { top: 8, right: 16, bottom: showXAxis ? 30 : 5, left: 32, containLabel: true },
       tooltip: {
         trigger: 'item',
-        backgroundColor: 'rgba(15,23,42,0.96)',
-        borderColor: '#475569',
-        textStyle: { color: '#edf3ff', fontSize: 11 },
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E4E4E7',
+        textStyle: { color: '#18181B', fontSize: 11 },
         formatter: (params) => {
           const item = params.data || {};
           const score = item.value?.[1];
@@ -213,10 +213,10 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
         name: showXAxis ? '时间 (s)' : '',
         nameLocation: 'middle',
         nameGap: 19,
-        nameTextStyle: { color: '#94a3b8', fontSize: 10 },
-        axisLine: { lineStyle: { color: '#334155' } },
+        nameTextStyle: { color: '#71717A', fontSize: 10 },
+        axisLine: { lineStyle: { color: '#D4D4D8' } },
         axisLabel: {
-          color: '#94a3b8', fontSize: 9, hideOverlap: true,
+          color: '#71717A', fontSize: 9, hideOverlap: true,
           formatter: (value) => {
             const rounded = Math.round(Number(value) * 10) / 10;
             return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
@@ -226,9 +226,9 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
       },
       yAxis: {
         type: 'value', min: 0, max: 1,
-        axisLine: { lineStyle: { color: '#334155' } },
-        axisLabel: { color: '#94a3b8', fontSize: 9 },
-        splitLine: { lineStyle: { color: '#1e293b' } },
+        axisLine: { lineStyle: { color: '#D4D4D8' } },
+        axisLabel: { color: '#71717A', fontSize: 9 },
+        splitLine: { lineStyle: { color: '#E4E4E7' } },
       },
       series: [{
         id: algorithm.id,
@@ -331,7 +331,7 @@ export function initComparisonPanel({ getScenarios = () => [] } = {}) {
           graphic: [{
             id: 'comparison-frame-guide', type: 'line', silent: true, z: 30,
             shape: { x1: lower[0], y1: upper[1], x2: lower[0], y2: lower[1] },
-            style: { stroke: '#e2e8f0', lineWidth: 1, opacity: 0.8 },
+            style: { stroke: '#2563EB', lineWidth: 1, opacity: 0.8 },
           }],
         });
       }
