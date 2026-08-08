@@ -18,7 +18,7 @@ export function initDetailChart() {
 
   function ensureChart() {
     if (!chart) {
-      chart = echarts.init(el, 'dark');
+      chart = echarts.init(el);
       const onResize = () => { if (chart && isActive()) { chart.resize(); updateCursor(); } };
       if (typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(onResize).observe(el);
@@ -58,7 +58,7 @@ export function initDetailChart() {
         title: {
           text: `V${vid} 无算法内部指标（非协同车辆）`,
           left: 'center', top: 'middle',
-          textStyle: { color: '#94a3b8', fontSize: 13, fontWeight: 400 },
+          textStyle: { color: COLORS.ui.muted, fontSize: 13, fontWeight: 400 },
         },
       });
       return;
@@ -112,9 +112,9 @@ export function initDetailChart() {
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'axis',
-        backgroundColor: 'rgba(15,23,42,0.96)',
-        borderColor: '#475569',
-        textStyle: { color: '#edf3ff', fontSize: 12 },
+        backgroundColor: COLORS.ui.panel,
+        borderColor: COLORS.ui.border,
+        textStyle: { color: COLORS.ui.text, fontSize: 12 },
         formatter: (params) => {
           if (!params.length) return '';
           const time = Number(params[0].axisValue).toFixed(2);
@@ -126,7 +126,7 @@ export function initDetailChart() {
         },
       },
       legend: {
-        textStyle: { color: '#94a3b8', fontSize: 10 },
+        textStyle: { color: COLORS.ui.muted, fontSize: 10 },
         top: 0, left: 4,
         itemWidth: 14, itemHeight: 8,
       },
@@ -138,28 +138,28 @@ export function initDetailChart() {
       xAxis: [
         {
           type: 'value', gridIndex: 0, min: 0, max: times[times.length - 1] || 1,
-          axisLabel: { show: false }, axisLine: { lineStyle: { color: '#334155' } },
-          splitLine: { lineStyle: { color: '#1e293b' } },
+          axisLabel: { show: false }, axisLine: { lineStyle: { color: COLORS.ui.axis } },
+          splitLine: { lineStyle: { color: COLORS.ui.grid } },
         },
         {
           type: 'value', gridIndex: 1, min: 0, max: times[times.length - 1] || 1,
-          axisLabel: { color: '#94a3b8', fontSize: 9 },
-          axisLine: { lineStyle: { color: '#334155' } },
+          axisLabel: { color: COLORS.ui.gridLabel, fontSize: 9 },
+          axisLine: { lineStyle: { color: COLORS.ui.axis } },
           splitLine: { show: false },
         },
       ],
       yAxis: [
         {
           type: 'value', gridIndex: 0, min: 0, max: 1,
-          axisLabel: { color: '#94a3b8', fontSize: 9 },
-          axisLine: { lineStyle: { color: '#334155' } },
-          splitLine: { lineStyle: { color: '#1e293b' } },
+          axisLabel: { color: COLORS.ui.gridLabel, fontSize: 9 },
+          axisLine: { lineStyle: { color: COLORS.ui.axis } },
+          splitLine: { lineStyle: { color: COLORS.ui.grid } },
         },
         {
           type: 'value', gridIndex: 1, minInterval: 1,
-          name: '过滤框', nameTextStyle: { color: '#94a3b8', fontSize: 9 },
-          axisLabel: { color: '#94a3b8', fontSize: 9 },
-          axisLine: { lineStyle: { color: '#334155' } },
+          name: '过滤框', nameTextStyle: { color: COLORS.ui.gridLabel, fontSize: 9 },
+          axisLabel: { color: COLORS.ui.gridLabel, fontSize: 9 },
+          axisLine: { lineStyle: { color: COLORS.ui.axis } },
           splitLine: { show: false },
         },
       ],
@@ -194,7 +194,7 @@ export function initDetailChart() {
             lineStyle: { color: COLORS.events.detection, type: 'dashed', width: 1.2 },
             label: {
               show: true, formatter: `检测 F${d.detectionFrame}`,
-              color: '#fecaca', fontSize: 9, position: 'insideEndTop',
+              color: COLORS.events.detection, fontSize: 9, position: 'insideEndTop',
             },
           }] : [],
         },

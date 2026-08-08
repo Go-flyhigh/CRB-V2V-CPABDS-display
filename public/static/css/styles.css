@@ -2,14 +2,28 @@
  * 色令牌与 static/js/config.js COLORS 同步（单一来源，两处必须一致）。 */
 
 :root {
-    --bg: #0b1020;
-    --panel: #12192e;
-    --panel-2: #17203a;
-    --line: #29324f;
-    --text: #edf3ff;
-    --muted: #94a3b8;
-    --soft: #c7d2fe;
-    --accent: #38bdf8;
+    --bg-page: #F7F8FA;
+    --bg-card: #FFFFFF;
+    --bg-subtle: #FAFAFA;
+    --text-primary: #18181B;
+    --text-secondary: #52525B;
+    --text-muted: #A1A1AA;
+    --border: #E4E4E7;
+    --border-hover: #D4D4D8;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-soft: #EFF6FF;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.025);
+
+    /* 兼容现有选择器的别名，保证只改变展示令牌。 */
+    --bg: var(--bg-page);
+    --panel: var(--bg-card);
+    --panel-2: var(--bg-subtle);
+    --line: var(--border);
+    --text: var(--text-primary);
+    --muted: var(--text-secondary);
+    --soft: var(--text-secondary);
+    --accent: var(--primary);
 
     /* 状态色（Okabe-Ito · 与 config.js COLORS.status 同步） */
     --c-trust: #009E73;
@@ -463,7 +477,7 @@ body {
 .toast-container {
     position: absolute; right: 18px; bottom: 18px; z-index: 900;
     display: flex; flex-direction: column; gap: 8px; pointer-events: none;
-    max-width: 340px;
+    width: min(360px, calc(100% - 36px)); max-width: 360px;
 }
 .toast {
     background: rgba(15, 23, 42, 0.96);
@@ -519,7 +533,7 @@ body {
         grid-template-columns: 1fr; grid-template-rows: 620px auto;
     }
     .left-panel { border-right: 0; border-bottom: 1px solid var(--line); }
-    .toast-container { top: auto; bottom: 18px; }
+    .toast-container { right: 16px; bottom: 16px; width: min(300px, calc(100% - 32px)); }
     .right-panel.comparison-active { overflow: visible; }
     .comparison-panel { min-height: 0; }
 }
@@ -539,4 +553,239 @@ body {
     .mode-switch, .playback-actions { justify-self: start; }
     .comparison-kpi-grid { grid-template-columns: 1fr; }
     .decision-lane-chart { height: 96px; }
+}
+
+/* ============ Clean Research UI 优化 ============
+ * 仅覆盖视觉表现层：DOM、文案、数据字段、模块和交互保持不变。
+ */
+body {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    letter-spacing: 0;
+}
+
+.header {
+    height: 60px;
+    padding: 0 32px;
+    background: var(--bg-card);
+    border-bottom-color: var(--border);
+}
+.brand { gap: 12px; }
+.header .title { color: var(--text-primary); font-size: 18px; font-weight: 600; }
+.v2-tag {
+    background: var(--primary-soft);
+    border-color: #BFDBFE;
+    color: var(--primary);
+}
+.header .subtitle { color: var(--text-secondary); }
+.status-pill {
+    border-color: #BFDBFE;
+    color: #1D4ED8;
+    background: var(--primary-soft);
+}
+
+.controls {
+    height: 68px;
+    padding: 12px 32px;
+    background: var(--bg-card);
+    border-bottom-color: var(--border);
+    gap: 12px;
+}
+.controls label { color: var(--text-secondary); }
+.controls select {
+    background: var(--bg-card);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    border-radius: 8px;
+    min-height: 40px;
+    padding: 0 12px;
+}
+.controls select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.btn {
+    height: 38px;
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 0 14px;
+}
+.btn:hover, .btn.active { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn:disabled { background: #F4F4F5; border-color: var(--border); color: var(--text-muted); }
+#resetBtn {
+    background: var(--bg-card);
+    border-color: var(--border-hover);
+    color: var(--text-secondary);
+}
+#resetBtn:hover:not(:disabled) { background: var(--bg-subtle); border-color: #A1A1AA; }
+.control-group input[type="range"] { accent-color: var(--primary); }
+.value-label, .frame-info { color: var(--text-secondary); }
+.mode-switch {
+    padding: 3px;
+    background: var(--bg-subtle);
+    border-color: var(--border);
+    border-radius: 8px;
+}
+.mode-btn, .comparison-metric-btn { color: var(--text-secondary); border-radius: 6px; }
+.mode-btn:hover:not(:disabled) { color: var(--text-primary); }
+.mode-btn.active {
+    color: var(--primary-hover);
+    background: var(--primary-soft);
+    border-color: #BFDBFE;
+}
+#eventBand {
+    background: #F4F4F5;
+    border: 1px solid var(--border);
+}
+
+.main { height: calc(100vh - 128px); }
+.left-panel { background: var(--bg-page); border-right-color: var(--border); }
+.right-panel { background: var(--bg-page); }
+.layer-toolbar {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: none;
+}
+.layer-btn {
+    background: var(--bg-card);
+    border-color: var(--border);
+    color: var(--text-secondary);
+    border-radius: 6px;
+}
+.layer-btn:hover { color: var(--text-primary); border-color: var(--border-hover); background: var(--bg-subtle); }
+.layer-btn.on {
+    color: var(--primary-hover);
+    background: var(--primary-soft);
+    border-color: #BFDBFE;
+}
+.layer-btn.god.on {
+    color: #92400E;
+    background: #FFFBEB;
+    border-color: #FCD34D;
+}
+.toolbar-sep { background: var(--border); }
+.canvas-overlay, .legend, .bev-tooltip {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: none;
+    color: var(--text-primary);
+}
+.canvas-overlay .muted-row, .bev-tooltip .tt-row { color: var(--text-secondary); }
+.attack-badge.ghost { background: #FEF2F2; color: #B42318; }
+.attack-badge.brake { background: #FFFBEB; color: #92400E; }
+.attack-badge.obstacle { background: #FDF2F8; color: #9D174D; }
+.attack-badge.none { background: #ECFDF5; color: #047857; }
+.attack-state.waiting { background: #F4F4F5; color: var(--text-secondary); }
+.attack-state.active { background: #FFFBEB; color: #92400E; }
+.attack-state.done { background: var(--primary-soft); color: var(--primary-hover); }
+.attack-state.static { background: #EEF2FF; color: #4338CA; }
+.legend-item { color: var(--text-secondary); }
+.legend-item .swatch .glyph { color: var(--text-primary); }
+.bev-tooltip { border-radius: 8px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10); }
+
+.kpi-row { padding: 16px 16px 0; gap: 12px; }
+.kpi-card, .stat-chip, .vehicle-card {
+    background: var(--bg-card);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
+}
+.kpi-card { border-radius: 8px; }
+.kpi-card .label, .kpi-card .sub, .stat-chip .label { color: var(--text-secondary); }
+.kpi-card .value, .stat-chip .value, .vehicle-card .v-name { color: var(--text-primary); }
+.kpi-card.alert { border-color: #F2B8B5; }
+.kpi-card.good { border-color: #A7DCCB; }
+.chart-section { border-bottom-color: var(--border); }
+.section-title { color: var(--text-primary); }
+.section-title .hint { color: var(--text-muted); }
+.stat-chip { border-radius: 8px; }
+.left-panel .empty-state, .chart-body .empty-state { background: rgba(247, 248, 250, 0.92); }
+#vehicleList .empty-state { border-color: var(--border-hover); background: var(--bg-subtle); }
+.tab-btn {
+    background: var(--bg-card);
+    border-color: var(--border);
+    color: var(--text-secondary);
+    border-radius: 8px;
+}
+.tab-btn.active { color: var(--primary-hover); background: var(--primary-soft); border-color: #BFDBFE; }
+#vehicleList::-webkit-scrollbar-thumb, .right-panel.comparison-active::-webkit-scrollbar-thumb { background: #D4D4D8; }
+.vehicle-card:hover { border-color: #93C5FD; background: var(--bg-subtle); }
+.vehicle-card.selected { border-color: var(--primary); background: var(--primary-soft); }
+
+.comparison-panel { background: var(--bg-page); }
+.comparison-data-state {
+    border-color: var(--border);
+    color: var(--text-secondary);
+    background: var(--bg-card);
+}
+.comparison-data-state.ready { color: #047857; background: #F0FDF4; }
+.comparison-data-state.loading { color: var(--primary-hover); background: var(--primary-soft); }
+.comparison-data-state.partial { color: #92400E; background: #FFFBEB; }
+.comparison-data-state.missing, .comparison-data-state.invalid, .comparison-data-state.error { color: #B42318; background: #FEF2F2; }
+.comparison-kpi-card {
+    border-color: var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+}
+.comparison-kpi-title, .comparison-overview-content { color: var(--text-primary); }
+.comparison-direction, .comparison-note { color: var(--text-muted); }
+.comparison-kpi-value { color: var(--text-primary); }
+.comparison-kpi-row.best .comparison-kpi-value, .comparison-best-badge { color: #92400E; }
+.decision-lanes-section, .comparison-overview-section {
+    border-color: var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+}
+.lane-selected {
+    color: var(--primary-hover);
+    background: var(--primary-soft);
+    border-color: #BFDBFE;
+}
+.decision-lane {
+    border-color: color-mix(in srgb, var(--algorithm-color) 32%, var(--border));
+    background: var(--bg-subtle);
+}
+.decision-lane-identity { color: var(--text-primary); }
+.decision-lane-status.state-trusted { color: #047857; background: #ECFDF5; }
+.decision-lane-status.state-suspicious { color: #92400E; background: #FFFBEB; }
+.decision-lane-status.state-distrusted { color: #B42318; background: #FEF2F2; }
+.comparison-metric-btn { border-color: var(--border); }
+.comparison-metric-btn.active { color: var(--primary-hover); border-color: #BFDBFE; background: var(--primary-soft); }
+.comparison-matrix-wrap { border-color: var(--border); }
+.comparison-matrix th, .comparison-matrix td { border-bottom-color: var(--border); }
+.comparison-matrix thead { color: var(--text-secondary); background: var(--bg-subtle); }
+.comparison-matrix tfoot { color: var(--text-primary); background: var(--primary-soft); }
+.comparison-matrix .method-column { color: var(--primary-hover); background: #F8FBFF; }
+.comparison-matrix td.best { color: #92400E; }
+.comparison-matrix tr > :first-child { background: var(--bg-card); }
+.comparison-matrix thead tr > :first-child { background: var(--bg-subtle); }
+.comparison-matrix tfoot tr > :first-child { background: var(--primary-soft); }
+.vehicle-card .v-detail { color: var(--text-secondary); }
+
+.toast {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: var(--border);
+    color: var(--text-primary);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+}
+.loading-mask { background: rgba(247, 248, 250, 0.98); }
+.loading-text { color: var(--text-secondary); }
+.loading-text.error { color: #B42318; }
+
+@media (max-width: 1080px) {
+    .header { padding: 0 24px; }
+    .controls { height: auto; padding: 12px 24px; }
+    .main { height: auto; min-height: calc(100vh - 128px); }
+}
+
+@media (max-width: 700px) {
+    .header { padding: 0 16px; }
+    .controls { height: auto; padding: 12px 16px; }
+    .toast-container { right: 12px; bottom: 12px; width: min(180px, calc(100% - 24px)); }
 }

@@ -110,7 +110,7 @@ export function initEventBand() {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, cssH); ctx.stroke();
         ctx.setLineDash([]);
       } else {
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.8)';
+        ctx.strokeStyle = 'rgba(161, 161, 170, 0.8)';
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x, cssH * 0.3); ctx.lineTo(x, cssH); ctx.stroke();
       }
@@ -118,7 +118,7 @@ export function initEventBand() {
 
     // 播放头（当前帧三角）
     const px = xOf(t);
-    ctx.fillStyle = '#edf3ff';
+    ctx.fillStyle = '#18181B';
     ctx.beginPath();
     ctx.moveTo(px, cssH - 5);
     ctx.lineTo(px - 3.5, cssH);
